@@ -106,8 +106,25 @@ export default function Analytics() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (loading) return <p className="container">Loading analytics…</p>;
-  if (error) return <p className="container error">{error}</p>;
+  if (loading) {
+    return (
+      <div className="container">
+        <Notice title="Loading..." type="info">
+          Fetching your data...
+        </Notice>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container"> 
+        <Notice title="Error" type="error">
+          {error}
+        </Notice>
+      </div>
+    );
+  }
 
   return (
     <div className="container">

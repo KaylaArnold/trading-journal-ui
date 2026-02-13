@@ -4,6 +4,7 @@ import api from "../api/client";
 import Breadcrumbs from "../components/Breadcrumbs";
 import TradeEditModal from "../components/TradeEditModal";
 import { patchTrade } from "../api/trades";
+import Notice from "../components/Notice"; 
 
 export default function DailyLogDetail() {
   const { id } = useParams();
@@ -201,9 +202,25 @@ export default function DailyLogDetail() {
     closeTradeModal();
   }
 
-  if (loading) return <p className="container">Loading log…</p>;
-  if (error) return <p className="container error">{error}</p>;
-  if (!log) return <p className="container">Not found</p>;
+  if (loading) {
+    return (
+      <div className="container">
+        <Notice title="Loading..." type="info">
+          Fetching your data...
+        </Notice>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container">
+        <Notice type="error" title="Something went wrong">
+          {error}
+        </Notice>
+      </div>
+    );
+  }
 
   return (
     <div className="container">

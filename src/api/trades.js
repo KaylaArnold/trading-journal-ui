@@ -1,8 +1,7 @@
-const API_BASE = "http://localhost:3000";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 export async function patchTrade(tradeId, body) {
   const token = localStorage.getItem("token");
-  if (!token) throw new Error("Not logged in");
 
   const res = await fetch(`${API_BASE}/trades/${tradeId}`, {
     method: "PATCH",
