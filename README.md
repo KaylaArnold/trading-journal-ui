@@ -1,67 +1,71 @@
----
-
-# ✅ Frontend README — `trading-journal-ui/README.md`
-
-```md
 # Trading Journal UI
 
-A React + Vite frontend for the Trading Journal application.  
-Includes login, daily log dashboard, daily log detail view, trade table + edit modal, and analytics dashboards.
+A React + Vite frontend for the Trading Journal application.
 
-## Features
+This application allows users to log trades, edit daily notes, and analyze performance through dashboards and analytics tables.
 
-- **Auth**
-  - Login screen
-  - Stores JWT in localStorage
-  - Sends token via `Authorization: Bearer <token>`
+---
 
-- **Daily Logs Dashboard**
-  - Paginated daily logs list
-  - Click into log detail page
+## 🚀 Features
 
-- **Daily Log Detail Page**
-  - View log info (ticker/date)
-  - Edit notes:
-    - keyLevels
-    - feelings
-    - reflections
-  - Add trades
-  - Delete trades
-  - Trade table with:
-    - CALL/PUT badge
-    - GREEN/RED badge
-    - strategy badge (ORB15 / ORB5 / 3CONF)
-    - color-coded P/L
-    - additional columns (contracts, drip %, leveraged)
+### Authentication
+- Login screen
+- JWT stored in localStorage
+- Authorization header: `Bearer <token>`
 
-- **Trade Edit Modal**
-  - Opens from the trade row
-  - Prefills fields
-  - PATCH update to backend
-  - Updates UI after save
+### Daily Logs Dashboard
+- Paginated list of daily logs
+- Click into individual log details
 
-- **Analytics Page**
-  - Summary cards
-  - Weekly table
-  - Strategy performance table
-  - Date filters (From/To)
-  - Refresh button
+### Daily Log Detail Page
+- View log (date + ticker)
+- Edit notes:
+  - Key Levels
+  - Feelings
+  - Reflections
+- Add trades
+- Delete trades
+- Trade table with:
+  - CALL / PUT badge
+  - GREEN / RED badge
+  - Strategy badge (ORB15 / ORB5 / 3CONF)
+  - Color-coded Profit/Loss
+  - Contracts column
+  - Drip % column
+  - Amount Leveraged column
 
-- **Navigation / UX**
-  - React Router
-  - Clickable “Trading Journal” title routes back to `/daily-logs`
-  - Breadcrumbs:
-    - `Dashboard › Log`
-    - `Dashboard › Log › Trade` when a trade is selected
+### Trade Edit Modal
+- Opens from trade row
+- Prefilled form fields
+- PATCH update to backend
+- UI refresh after save
 
-## Tech Stack
+### Analytics Page
+- Summary performance cards
+- Weekly breakdown table
+- Strategy performance table
+- Date filters (From / To)
+- Refresh button
+
+### Navigation / UX
+- React Router
+- Breadcrumb navigation
+- Clickable app title routes back to dashboard
+- Loading + error notices
+
+---
+
+## 🛠 Tech Stack
 
 - React
 - Vite
 - React Router
-- CSS (light custom component styling)
+- Fetch API
+- Custom CSS styling
 
-## Repo Structure
+---
+
+## 📂 Project Structure
 
 ```txt
 public/
@@ -70,6 +74,9 @@ src/
   assets/
   components/
   pages/
+```
+
+---
 
 ## 📸 Screenshots
 
@@ -85,3 +92,26 @@ src/
 ### Edit Trade Modal
 ![Edit Trade](./screenshots/TradeEditModal.png)
 
+---
+
+## ⚙️ Run Locally
+
+```bash
+npm install
+npm run dev
+```
+
+The app runs at:
+
+```
+http://localhost:5173
+```
+
+Backend must be running separately.
+
+---
+
+## 🔗 Related Repository
+
+Backend API:
+https://github.com/KaylaArnold/trading-journal-api
