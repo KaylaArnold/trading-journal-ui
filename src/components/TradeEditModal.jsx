@@ -69,25 +69,24 @@ export default function TradeEditModal({ open, trade, onClose, onSave }) {
     setSaving(true);
 
     try {
-  const body = {
-    timeIn: strOrUndef(form.timeIn),
-    timeOut: strOrUndef(form.timeOut),
-    profitLoss: numOrUndef(form.profitLoss),
-    runner: !!form.runner,
-    optionType: toUpperOrNull(form.optionType) ?? undefined,
-    outcomeColor: toUpperOrNull(form.outcomeColor) ?? undefined,
-    strategy: toUpperOrNull(form.strategy) ?? undefined,
-    contractsCount: numOrUndef(form.contractsCount),
-    dripPercent: numOrUndef(form.dripPercent),
-    amountLeveraged: numOrUndef(form.amountLeveraged),
-  };
-
+      const body = {
+        timeIn: strOrUndef(form.timeIn),
+        timeOut: strOrUndef(form.timeOut),
+        profitLoss: numOrUndef(form.profitLoss),
+        runner: !!form.runner,
+        optionType: toUpperOrNull(form.optionType) ?? undefined,
+        outcomeColor: toUpperOrNull(form.outcomeColor) ?? undefined,
+        strategy: toUpperOrNull(form.strategy) ?? undefined,
+        contractsCount: numOrUndef(form.contractsCount),
+        dripPercent: numOrUndef(form.dripPercent),
+        amountLeveraged: numOrUndef(form.amountLeveraged),
+      };
 
       // keep Zod happy (no empty PATCH)
       Object.keys(body).forEach((k) => body[k] === undefined && delete body[k]);
 
       await onSave(body);
-      onClose();
+      onClose?.();
     } catch (err) {
       setError(err?.message || "Failed to update trade");
     } finally {
@@ -127,12 +126,14 @@ export default function TradeEditModal({ open, trade, onClose, onSave }) {
   const closeXStyle = {
     lineHeight: 1,
     padding: "6px 10px",
+    fontSize: 18,
   };
 
   return (
     <div style={overlayStyle} onClick={onClose}>
       <div style={{ width: "min(760px, 100%)" }} onClick={(e) => e.stopPropagation()}>
         <div style={modalStyle}>
+          {/* Header */}
           <div
             style={{
               display: "flex",
@@ -143,10 +144,21 @@ export default function TradeEditModal({ open, trade, onClose, onSave }) {
           >
             <div>
               <h3 style={{ margin: 0, color: "#fff" }}>Edit Trade</h3>
-              <div style={{ fontSize: 12, opacity: 0.7 }}>{trade?.id}</div>
+              <div style={{ fontSize: 12, opacity: 0.7 }}>
+                {trade?.timeIn || "—"} – {trade?.timeOut || "—"}
+              </div>
             </div>
-            <button className="btn" type="button" onClick={onClose} disabled={saving} style={closeXStyle}>
-              ✕
+
+            <button
+              className="btn"
+              type="button"
+              onClick={onClose}
+              disabled={saving}
+              style={closeXStyle}
+              aria-label="Close"
+              title="Close"
+            >
+              ×
             </button>
           </div>
 
@@ -239,20 +251,20 @@ export default function TradeEditModal({ open, trade, onClose, onSave }) {
                 style={fieldStyle}
                 placeholder="Drip %"
                 type="number"
-                step="0.01"  
+                step="0.01"
                 value={form?.dripPercent ?? ""}
                 onChange={set("dripPercent")}
               />
               <input
                 className="input"
-                style={fieldStyle}  
+                style={fieldStyle}
                 placeholder="Amount Leveraged"
                 type="number"
                 step="0.01"
                 value={form?.amountLeveraged ?? ""}
                 onChange={set("amountLeveraged")}
               />
-            </div>      
+            </div>
 
             {error ? (
               <p className="error" style={{ margin: 0 }}>
