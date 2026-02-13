@@ -1,16 +1,73 @@
-# React + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+---
 
-Currently, two official plugins are available:
+# ✅ Frontend README — `trading-journal-ui/README.md`
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```md
+# Trading Journal UI
 
-## React Compiler
+A React + Vite frontend for the Trading Journal application.  
+Includes login, daily log dashboard, daily log detail view, trade table + edit modal, and analytics dashboards.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Features
 
-## Expanding the ESLint configuration
+- **Auth**
+  - Login screen
+  - Stores JWT in localStorage
+  - Sends token via `Authorization: Bearer <token>`
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- **Daily Logs Dashboard**
+  - Paginated daily logs list
+  - Click into log detail page
+
+- **Daily Log Detail Page**
+  - View log info (ticker/date)
+  - Edit notes:
+    - keyLevels
+    - feelings
+    - reflections
+  - Add trades
+  - Delete trades
+  - Trade table with:
+    - CALL/PUT badge
+    - GREEN/RED badge
+    - strategy badge (ORB15 / ORB5 / 3CONF)
+    - color-coded P/L
+    - additional columns (contracts, drip %, leveraged)
+
+- **Trade Edit Modal**
+  - Opens from the trade row
+  - Prefills fields
+  - PATCH update to backend
+  - Updates UI after save
+
+- **Analytics Page**
+  - Summary cards
+  - Weekly table
+  - Strategy performance table
+  - Date filters (From/To)
+  - Refresh button
+
+- **Navigation / UX**
+  - React Router
+  - Clickable “Trading Journal” title routes back to `/daily-logs`
+  - Breadcrumbs:
+    - `Dashboard › Log`
+    - `Dashboard › Log › Trade` when a trade is selected
+
+## Tech Stack
+
+- React
+- Vite
+- React Router
+- CSS (light custom component styling)
+
+## Repo Structure
+
+```txt
+public/
+src/
+  api/
+  assets/
+  components/
+  pages/
