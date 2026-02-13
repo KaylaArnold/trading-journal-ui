@@ -243,11 +243,11 @@ export default function Analytics() {
             <thead>
               <tr>
                 <th>Strategy</th>
-                <th className="right">Trades</th>
-                <th className="right">Wins</th>
-                <th className="right">Losses</th>
-                <th className="right">Win %</th>
-                <th className="right">Total P/L</th>
+                <th className="center">Trades</th>
+                <th className="center">Wins</th>
+                <th className="center">Losses</th>
+                <th className="center">Win %</th>
+                <th className="center">Total P/L</th>
               </tr>
             </thead>
             <tbody>
@@ -260,11 +260,11 @@ export default function Analytics() {
                     <td>
                       <span className="badge badgePurple">{r.strategy}</span>
                     </td>
-                    <td className="right">{r.trades}</td>
-                    <td className="right">{r.wins}</td>
-                    <td className="right">{r.losses}</td>
-                    <td className="right">{r.winRate}%</td>
-                    <td className={`right ${plClass(totalNum)}`}>
+                    <td className="center">{r.trades}</td>
+                    <td className="center">{r.wins}</td>
+                    <td className="center">{r.losses}</td>
+                    <td className="center">{r.winRate}%</td>
+                    <td className={`center ${plClass(totalNum)}`}>
                       {totalNum > 0 ? "+" : ""}
                       {totalStr}
                     </td>
@@ -296,9 +296,9 @@ export default function Analytics() {
             <thead>
               <tr>
                 <th>Week Start</th>
-                <th className="right">Trades</th>
-                <th className="right">Win %</th>
-                <th className="right">Total P/L</th>
+                <th className="center">Trades</th>
+                <th className="center">Win %</th>
+                <th className="center">Total P/L</th>
               </tr>
             </thead>
             <tbody>
@@ -309,9 +309,9 @@ export default function Analytics() {
                 return (
                   <tr key={w.weekStart}>
                     <td>{w.weekStart}</td>
-                    <td className="right">{w.trades}</td>
-                    <td className="right">{w.winRate}%</td>
-                    <td className={`right ${plClass(totalNum)}`}>
+                    <td className="center">{w.trades}</td>
+                    <td className="center">{w.winRate}%</td>
+                    <td className={`center ${plClass(totalNum)}`}>
                       {totalNum > 0 ? "+" : ""}
                       {totalStr}
                     </td>
