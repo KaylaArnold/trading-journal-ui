@@ -71,3 +71,18 @@ src/
   assets/
   components/
   pages/
+
+## 📸 Screenshots
+
+### Dashboard
+![Dashboard](./screenshots/Dashboard.png)
+
+### Daily Log
+![Daily Log](./screenshots/DailyLogDetail.png)
+
+### Analytics
+![Analytics](./screenshots/Analytics.png)
+
+### Edit Trade Modal
+![Edit Trade](./screenshots/TradeEditModal.png)
+
