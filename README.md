@@ -1,4 +1,3 @@
-
 ---
 
 # ✅ Frontend README — `trading-journal-ui/README.md`
