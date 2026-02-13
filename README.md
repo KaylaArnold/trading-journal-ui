@@ -5,9 +5,6 @@ A React + Vite frontend for the Trading Journal application.
 This application allows users to log trades, edit daily notes, and analyze performance through dashboards and analytics tables.
 
 ---
-⚙️ Backend Repository:
-https://github.com/KaylaArnold/trading-journal-api
-This frontend connects to the Trading Journal API backend for authentication, daily logs, trades, and analytics.
 
 ## 🚀 Features
 
@@ -113,6 +110,15 @@ http://localhost:5173
 Backend must be running separately.
 
 ---
+
+## Architecture
+
+React (Frontend)
+        ↓
+Express API (Backend)
+        ↓
+PostgreSQL Database
+
 
 ## 🔗 Related Repository
 
