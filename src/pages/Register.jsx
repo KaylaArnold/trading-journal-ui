@@ -22,14 +22,9 @@ export default function Register({ onRegister }) {
     try {
       setSubmitting(true);
 
-      // 1) Register
       await api.post("/auth/register", { email, password });
-
-      // 2) Login immediately after
       const loginRes = await api.post("/auth/login", { email, password });
-      console.log("LOGIN RESPONSE:", loginRes.data);
 
-      // Support different backend shapes
       const token =
         loginRes.data?.token ||
         loginRes.data?.accessToken ||
@@ -45,8 +40,6 @@ export default function Register({ onRegister }) {
       onRegister?.();
       navigate("/daily-logs");
     } catch (e2) {
-      console.error("REGISTER/LOGIN ERROR:", e2?.response?.data || e2);
-
       const status = e2?.response?.status;
       const data = e2?.response?.data;
 
@@ -54,7 +47,7 @@ export default function Register({ onRegister }) {
         data?.error ||
         data?.message ||
         (status ? `Request failed (${status})` : null) ||
-        "Failed after registering.";
+        "Failed to register.";
 
       setError(msg);
     } finally {
@@ -66,29 +59,43 @@ export default function Register({ onRegister }) {
     <div style={{ padding: 16, maxWidth: 420 }}>
       <h2>Create account</h2>
 
-      <form onSubmit={handleSubmit} style={{ display: "grid", gap: 10 }}>
-        <input
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          autoComplete="email"
-        />
-        <input
-          placeholder="Password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          autoComplete="new-password"
-        />
+      <form onSubmit={handleSubmit} style={{ display: "grid", gap: 12 }}>
+        <div>
+          <label htmlFor="register-email">Email</label>
+          <input
+            id="register-email"
+            name="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
+            required
+            style={{ width: "100%", padding: 8 }}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="register-password">Password</label>
+          <input
+            id="register-password"
+            name="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            autoComplete="new-password"
+            required
+            style={{ width: "100%", padding: 8 }}
+          />
+        </div>
 
         <button type="submit" disabled={submitting}>
           {submitting ? "Creating..." : "Create account"}
         </button>
 
-        {error && <p style={{ color: "red" }}>{error}</p>}
+        {error && <p style={{ color: "red", margin: 0 }}>{error}</p>}
       </form>
 
-      <p style={{ marginTop: 12 }}>
+      <p style={{ marginTop: 16 }}>
         Already have an account? <Link to="/login">Login</Link>
       </p>
     </div>
