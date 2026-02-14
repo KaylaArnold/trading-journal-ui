@@ -22,33 +22,39 @@ export default function Register({ onRegister }) {
     try {
       setSubmitting(true);
 
-      // 1) Create account
+      // 1) Register
       await api.post("/auth/register", { email, password });
 
-      // 2) Login right after register (so user lands inside app)
+      // 2) Login immediately after
       const loginRes = await api.post("/auth/login", { email, password });
+      console.log("LOGIN RESPONSE:", loginRes.data);
 
-      const token = loginRes.data?.token;
+      // Support different backend shapes
+      const token =
+        loginRes.data?.token ||
+        loginRes.data?.accessToken ||
+        loginRes.data?.jwt ||
+        loginRes.data?.data?.token;
+
       if (!token) {
-        setError("Registered, but login failed (no token returned).");
+        setError("Registered, but login did not return a token.");
         return;
       }
 
       localStorage.setItem("token", token);
-      onRegister?.(); // update App loggedIn state
+      onRegister?.();
       navigate("/daily-logs");
     } catch (e2) {
-        console.error("Registration error:", e2);
-        
+      console.error("REGISTER/LOGIN ERROR:", e2?.response?.data || e2);
+
       const status = e2?.response?.status;
       const data = e2?.response?.data;
 
-      const msg = 
-        data?. error ||
+      const msg =
+        data?.error ||
         data?.message ||
-        (Array.isArray(data?.issues) ? data.issues.map(i => '${i.path}: ${i.message}').join(", ") : null) ||
-        (status ? 'Request failed (${status})' : null) ||
-        "Failed to register.";
+        (status ? `Request failed (${status})` : null) ||
+        "Failed after registering.";
 
       setError(msg);
     } finally {
