@@ -1,5 +1,6 @@
 import { useState } from "react";
 import api from "../api/client";
+import { Link } from "react-router-dom";
 
 export default function Login({ onLogin }) {
   const [email, setEmail] = useState("");
@@ -38,7 +39,10 @@ export default function Login({ onLogin }) {
         <br /><br />
         <button type="submit">Login</button>
       </form>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      <p style={{ marginTop: 12 }}>
+        New here? <Link to="/register">Create an account</Link>
+      </p>
+       {error && <p style={{ color: "red" }}>{error}</p>}
     </div>
   );
 }
