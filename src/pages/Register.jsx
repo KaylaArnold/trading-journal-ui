@@ -38,12 +38,19 @@ export default function Register({ onRegister }) {
       onRegister?.(); // update App loggedIn state
       navigate("/daily-logs");
     } catch (e2) {
-      const msg =
-        e2?.response?.data?.error ||
-        e2?.response?.data?.message ||
+        console.error("Registration error:", e2);
+        
+      const status = e2?.response?.status;
+      const data = e2?.response?.data;
+
+      const msg = 
+        data?. error ||
+        data?.message ||
+        (Array.isArray(data?.issues) ? data.issues.map(i => '${i.path}: ${i.message}').join(", ") : null) ||
+        (status ? 'Request failed (${status})' : null) ||
         "Failed to register.";
+
       setError(msg);
-      console.error(e2?.response?.data || e2);
     } finally {
       setSubmitting(false);
     }
