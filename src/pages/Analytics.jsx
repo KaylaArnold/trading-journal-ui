@@ -1,6 +1,36 @@
 import { useEffect, useMemo, useState } from "react";
 import api from "../api/client";
 
+/** ✅ Add this (fixes "Notice is not defined") */
+function Notice({ title, type = "info", children }) {
+  const stylesByType = {
+    info: { border: "#cfe8ff", background: "#eef7ff", color: "#0b3d91" },
+    error: { border: "#ffd0d0", background: "#fff0f0", color: "#8a0000" },
+    success: { border: "#c8f3d1", background: "#eefcf1", color: "#0b5f24" },
+    warn: { border: "#ffe6b3", background: "#fff7e6", color: "#7a4a00" },
+  };
+
+  const s = stylesByType[type] || stylesByType.info;
+
+  return (
+    <div
+      style={{
+        border: `1px solid ${s.border}`,
+        background: s.background,
+        color: s.color,
+        padding: 14,
+        borderRadius: 12,
+        maxWidth: 760,
+        margin: "18px auto",
+        fontWeight: 600,
+      }}
+    >
+      {title && <div style={{ fontSize: 16, marginBottom: 6 }}>{title}</div>}
+      <div style={{ fontWeight: 500 }}>{children}</div>
+    </div>
+  );
+}
+
 export default function Analytics() {
   const [strategyRows, setStrategyRows] = useState([]);
   const [weeklyRows, setWeeklyRows] = useState([]);
@@ -118,7 +148,7 @@ export default function Analytics() {
 
   if (error) {
     return (
-      <div className="container"> 
+      <div className="container">
         <Notice title="Error" type="error">
           {error}
         </Notice>
@@ -220,22 +250,20 @@ export default function Analytics() {
             <span className="badge badgePurple">
               Trades: {summary.totalTrades ?? 0}
             </span>
-            <span className={`badge ${Number(summary.totalProfitLoss) >= 0 ? "badgeGreen" : "badgeRed"}`}>
+            <span
+              className={`badge ${
+                Number(summary.totalProfitLoss) >= 0 ? "badgeGreen" : "badgeRed"
+              }`}
+            >
               Total P/L: {Number(summary.totalProfitLoss) > 0 ? "+" : ""}
               {fmtPL(summary.totalProfitLoss)}
             </span>
             <span className="badge badgeGray">
               Win Rate: {summary.winRate ?? 0}%
             </span>
-            <span className="badge badgeGray">
-              Avg Win: {fmtPL(summary.avgWin)}
-            </span>
-            <span className="badge badgeGray">
-              Avg Loss: {fmtPL(summary.avgLoss)}
-            </span>
-            <span className="badge badgeGray">
-              Best: {summary.bestTicker ?? "—"}
-            </span>
+            <span className="badge badgeGray">Avg Win: {fmtPL(summary.avgWin)}</span>
+            <span className="badge badgeGray">Avg Loss: {fmtPL(summary.avgLoss)}</span>
+            <span className="badge badgeGray">Best: {summary.bestTicker ?? "—"}</span>
           </div>
         )}
       </div>
