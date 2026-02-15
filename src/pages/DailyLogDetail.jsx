@@ -119,16 +119,15 @@ export default function DailyLogDetail() {
     const dateStr = log?.date ? new Date(log.date).toLocaleDateString() : "Log";
     const logLabel = log?.ticker ? `${dateStr} — ${log.ticker}` : dateStr;
 
-    const items = [
-      { label: "Dashboard", to: "/daily-logs" },
-      { label: "Log", to: `/daily-logs/${id}` },
-    ];
+    const items = [{ label: "Dashboard", to: "/daily-logs" }];
 
     if (selectedTrade) {
-      const label = `Trade ${selectedTrade.timeIn || "—"}–${selectedTrade.timeOut || "—"}`;
-      items.push({ label });
+      items.push({ label: logLabel, to: `/daily-logs/${id}` });
+      items.push({
+        label: `Trade ${selectedTrade.timeIn || "—"}–${selectedTrade.timeOut || "—"}`,
+      });
     } else {
-      items[1] = { label: logLabel };
+      items.push({ label: logLabel });
     }
 
     return items;
@@ -146,9 +145,8 @@ export default function DailyLogDetail() {
     try {
       setSubmitting(true);
 
-      await api.post(`/trades`, {
-        // ✅ FIX: must be dailyLogId (capital I)
-        dailyLogId: id,
+      // ✅ BACKEND ROUTE: POST /daily-logs/:id/trades
+      await api.post(`/daily-logs/${id}/trades`, {
         timeIn,
         timeOut,
         profitLoss: String(profitLoss),
@@ -169,13 +167,13 @@ export default function DailyLogDetail() {
       setStrategy("ORB15");
 
       await fetchLog();
-    } catch (e) {
+    } catch (e2) {
       const msg =
-        e?.response?.data?.error ||
-        e?.response?.data?.message ||
+        e2?.response?.data?.error ||
+        e2?.response?.data?.message ||
         "Failed to create trade.";
       setFormError(msg);
-      console.error("Create trade error:", e?.response?.data || e);
+      console.error("Create trade error:", e2?.response?.data || e2);
     } finally {
       setSubmitting(false);
     }
@@ -232,7 +230,7 @@ export default function DailyLogDetail() {
 
       <div className="card" style={{ marginTop: 12 }}>
         <h2 className="h2" style={{ marginBottom: 10 }}>
-          {log.date ? new Date(log.date).toLocaleDateString() : "—"} — {log.ticker}
+          {log?.date ? new Date(log.date).toLocaleDateString() : "—"} — {log?.ticker}
         </h2>
 
         <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
@@ -259,11 +257,7 @@ export default function DailyLogDetail() {
           ) : null}
         </div>
 
-        {notesError ? (
-          <p className="error" style={{ marginTop: 0 }}>
-            {notesError}
-          </p>
-        ) : null}
+        {notesError ? <p className="error">{notesError}</p> : null}
 
         {editingNotes ? (
           <div className="row" style={{ flexDirection: "column", gap: 10 }}>
@@ -292,13 +286,13 @@ export default function DailyLogDetail() {
         ) : (
           <div className="kv">
             <strong>Key Levels</strong>
-            <div>{log.keyLevels || "—"}</div>
+            <div>{log?.keyLevels || "—"}</div>
 
             <strong>Feelings</strong>
-            <div>{log.feelings || "—"}</div>
+            <div>{log?.feelings || "—"}</div>
 
             <strong>Reflections</strong>
-            <div>{log.reflections || "—"}</div>
+            <div>{log?.reflections || "—"}</div>
           </div>
         )}
 
@@ -372,18 +366,14 @@ export default function DailyLogDetail() {
             </button>
           </div>
 
-          {formError ? (
-            <p className="error" style={{ marginTop: 10 }}>
-              {formError}
-            </p>
-          ) : null}
+          {formError ? <p className="error" style={{ marginTop: 10 }}>{formError}</p> : null}
         </form>
       </div>
 
       <div className="card">
         <h3 style={{ marginTop: 0 }}>Trades</h3>
 
-        {log.trades?.length ? (
+        {log?.trades?.length ? (
           <div className="tableWrap">
             <table className="table" style={{ marginTop: 12, width: "100%" }}>
               <thead>
@@ -436,17 +426,9 @@ export default function DailyLogDetail() {
                         {Number.isNaN(pl) ? "0.00" : pl.toFixed(2)}
                       </td>
 
-                      <td className="right">
-                        {t.contractsCount == null || t.contractsCount === "" ? "—" : t.contractsCount}
-                      </td>
-
-                      <td className="right">
-                        {t.dripPercent == null || t.dripPercent === "" ? "—" : `${t.dripPercent}%`}
-                      </td>
-
-                      <td className="right">
-                        {t.amountLeveraged == null || t.amountLeveraged === "" ? "—" : Number(t.amountLeveraged).toFixed(0)}
-                      </td>
+                      <td className="right">{t.contractsCount ?? "—"}</td>
+                      <td className="right">{t.dripPercent != null ? `${t.dripPercent}%` : "—"}</td>
+                      <td className="right">{t.amountLeveraged != null ? Number(t.amountLeveraged).toFixed(0) : "—"}</td>
 
                       <td className="right" style={{ whiteSpace: "nowrap" }}>
                         <button
