@@ -4,7 +4,7 @@ import api from "../api/client";
 import Breadcrumbs from "../components/Breadcrumbs";
 import TradeEditModal from "../components/TradeEditModal";
 import { patchTrade } from "../api/trades";
-import Notice from "../components/Notice"; 
+import Notice from "../components/Notice";
 
 export default function DailyLogDetail() {
   const { id } = useParams();
@@ -147,7 +147,8 @@ export default function DailyLogDetail() {
       setSubmitting(true);
 
       await api.post(`/trades`, {
-        dailyLogid: id,
+        // ✅ FIX: must be dailyLogId (capital I)
+        dailyLogId: id,
         timeIn,
         timeOut,
         profitLoss: String(profitLoss),
