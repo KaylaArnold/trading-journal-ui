@@ -146,7 +146,8 @@ export default function DailyLogDetail() {
     try {
       setSubmitting(true);
 
-      await api.post(`/daily-logs/${id}/trades`, {
+      await api.post(`/trades`, {
+        dailyLogid: id,
         timeIn,
         timeOut,
         profitLoss: String(profitLoss),
