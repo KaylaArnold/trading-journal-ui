@@ -47,7 +47,9 @@ export default function DailyLogDetail() {
     setReflectionsEdit(dailyLog?.reflections || "");
 
     if (dailyLog?.ticker && dailyLog?.date) {
-      document.title = `${dailyLog.ticker} — ${new Date(dailyLog.date).toLocaleDateString()}`;
+      document.title = `${dailyLog.ticker} — ${new Date(
+        dailyLog.date
+      ).toLocaleDateString()}`;
     }
   }
 
@@ -124,7 +126,9 @@ export default function DailyLogDetail() {
     if (selectedTrade) {
       items.push({ label: logLabel, to: `/daily-logs/${id}` });
       items.push({
-        label: `Trade ${selectedTrade.timeIn || "—"}–${selectedTrade.timeOut || "—"}`,
+        label: `Trade ${selectedTrade.timeIn || "—"}–${
+          selectedTrade.timeOut || "—"
+        }`,
       });
     } else {
       items.push({ label: logLabel });
@@ -133,6 +137,7 @@ export default function DailyLogDetail() {
     return items;
   }, [id, log, selectedTrade]);
 
+  // ✅ FIXED create-trade handler
   async function handleAddTrade(e) {
     e.preventDefault();
     setFormError("");
@@ -145,16 +150,19 @@ export default function DailyLogDetail() {
     try {
       setSubmitting(true);
 
-      // ✅ BACKEND ROUTE: POST /daily-logs/:id/trades
-      await api.post(`/daily-logs/${id}/trades`, {
+      const payload = {
+        dailyLogId: id,
         timeIn,
         timeOut,
-        profitLoss: String(profitLoss),
-        runner,
+        profitLoss: Number(profitLoss),
+        runner: !!runner,
         optionType,
         outcomeColor,
         strategy,
-      });
+      };
+
+      // ✅ Use the existing trades resource route
+      await api.post("/trades", payload);
 
       localStorage.setItem("analytics:refresh", "1");
 
@@ -230,7 +238,8 @@ export default function DailyLogDetail() {
 
       <div className="card" style={{ marginTop: 12 }}>
         <h2 className="h2" style={{ marginBottom: 10 }}>
-          {log?.date ? new Date(log.date).toLocaleDateString() : "—"} — {log?.ticker}
+          {log?.date ? new Date(log.date).toLocaleDateString() : "—"} —{" "}
+          {log?.ticker}
         </h2>
 
         <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
@@ -299,9 +308,14 @@ export default function DailyLogDetail() {
         {selectedTrade && (
           <div style={{ marginTop: 12 }}>
             <span className="badge badgeGray">
-              Selected: {selectedTrade.timeIn || "—"}–{selectedTrade.timeOut || "—"}
+              Selected: {selectedTrade.timeIn || "—"}–
+              {selectedTrade.timeOut || "—"}
             </span>{" "}
-            <button className="btn" style={{ marginLeft: 10 }} onClick={clearTradeSelection}>
+            <button
+              className="btn"
+              style={{ marginLeft: 10 }}
+              onClick={clearTradeSelection}
+            >
               Clear Trade
             </button>
           </div>
@@ -341,7 +355,11 @@ export default function DailyLogDetail() {
               Runner
             </label>
 
-            <select className="select" value={optionType} onChange={(e) => setOptionType(e.target.value)}>
+            <select
+              className="select"
+              value={optionType}
+              onChange={(e) => setOptionType(e.target.value)}
+            >
               <option value="CALL">CALL</option>
               <option value="PUT">PUT</option>
             </select>
@@ -355,7 +373,11 @@ export default function DailyLogDetail() {
               <option value="RED">RED</option>
             </select>
 
-            <select className="select" value={strategy} onChange={(e) => setStrategy(e.target.value)}>
+            <select
+              className="select"
+              value={strategy}
+              onChange={(e) => setStrategy(e.target.value)}
+            >
               <option value="ORB15">ORB15</option>
               <option value="ORB5">ORB5</option>
               <option value="3CONF">3CONF</option>
@@ -366,7 +388,11 @@ export default function DailyLogDetail() {
             </button>
           </div>
 
-          {formError ? <p className="error" style={{ marginTop: 10 }}>{formError}</p> : null}
+          {formError ? (
+            <p className="error" style={{ marginTop: 10 }}>
+              {formError}
+            </p>
+          ) : null}
         </form>
       </div>
 
@@ -384,7 +410,9 @@ export default function DailyLogDetail() {
                   <th className="right">Contracts</th>
                   <th className="right">Drip%</th>
                   <th className="right">Leveraged</th>
-                  <th className="right" style={{ width: 140 }}>Actions</th>
+                  <th className="right" style={{ width: 140 }}>
+                    Actions
+                  </th>
                 </tr>
               </thead>
 
@@ -411,13 +439,23 @@ export default function DailyLogDetail() {
 
                       <td>
                         <div className="row" style={{ gap: 8 }}>
-                          {t.optionType ? <span className="badge badgePurple">{t.optionType}</span> : null}
+                          {t.optionType ? (
+                            <span className="badge badgePurple">{t.optionType}</span>
+                          ) : null}
                           {t.outcomeColor ? (
-                            <span className={`badge ${t.outcomeColor === "GREEN" ? "badgeGreen" : "badgeRed"}`}>
+                            <span
+                              className={`badge ${
+                                t.outcomeColor === "GREEN"
+                                  ? "badgeGreen"
+                                  : "badgeRed"
+                              }`}
+                            >
                               {t.outcomeColor}
                             </span>
                           ) : null}
-                          {t.strategy ? <span className="badge badgePurple">{t.strategy}</span> : null}
+                          {t.strategy ? (
+                            <span className="badge badgePurple">{t.strategy}</span>
+                          ) : null}
                         </div>
                       </td>
 
@@ -427,8 +465,14 @@ export default function DailyLogDetail() {
                       </td>
 
                       <td className="right">{t.contractsCount ?? "—"}</td>
-                      <td className="right">{t.dripPercent != null ? `${t.dripPercent}%` : "—"}</td>
-                      <td className="right">{t.amountLeveraged != null ? Number(t.amountLeveraged).toFixed(0) : "—"}</td>
+                      <td className="right">
+                        {t.dripPercent != null ? `${t.dripPercent}%` : "—"}
+                      </td>
+                      <td className="right">
+                        {t.amountLeveraged != null
+                          ? Number(t.amountLeveraged).toFixed(0)
+                          : "—"}
+                      </td>
 
                       <td className="right" style={{ whiteSpace: "nowrap" }}>
                         <button
