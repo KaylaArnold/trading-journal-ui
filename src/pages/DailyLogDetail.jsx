@@ -138,54 +138,53 @@ export default function DailyLogDetail() {
   }, [id, log, selectedTrade]);
 
   // ✅ FIXED create-trade handler
-  async function handleAddTrade(e) {
-    e.preventDefault();
-    setFormError("");
+async function handleAddTrade(e) {
+  e.preventDefault();
+  setFormError("");
 
-    if (!timeIn || !timeOut || profitLoss === "") {
-      setFormError("timeIn, timeOut, and profitLoss are required.");
-      return;
-    }
-
-    try {
-      setSubmitting(true);
-
-      const payload = {
-        dailyLogId: id,
-        timeIn,
-        timeOut,
-        profitLoss: Number(profitLoss),
-        runner: !!runner,
-        optionType,
-        outcomeColor,
-        strategy,
-      };
-
-      // ✅ Use the existing trades resource route
-      await api.post("/trades", payload);
-
-      localStorage.setItem("analytics:refresh", "1");
-
-      setTimeIn("");
-      setTimeOut("");
-      setProfitLoss("");
-      setRunner(false);
-      setOptionType("CALL");
-      setOutcomeColor("GREEN");
-      setStrategy("ORB15");
-
-      await fetchLog();
-    } catch (e2) {
-      const msg =
-        e2?.response?.data?.error ||
-        e2?.response?.data?.message ||
-        "Failed to create trade.";
-      setFormError(msg);
-      console.error("Create trade error:", e2?.response?.data || e2);
-    } finally {
-      setSubmitting(false);
-    }
+  if (!timeIn || !timeOut || profitLoss === "") {
+    setFormError("timeIn, timeOut, and profitLoss are required.");
+    return;
   }
+
+  try {
+    setSubmitting(true);
+
+    const payload = {
+      timeIn,
+      timeOut,
+      profitLoss: Number(profitLoss),
+      runner: !!runner,
+      optionType,
+      outcomeColor,
+      strategy,
+    };
+
+    // ✅ Backend route: POST /daily-logs/:id/trades
+    await api.post(`/daily-logs/${id}/trades`, payload);
+
+    localStorage.setItem("analytics:refresh", "1");
+
+    setTimeIn("");
+    setTimeOut("");
+    setProfitLoss("");
+    setRunner(false);
+    setOptionType("CALL");
+    setOutcomeColor("GREEN");
+    setStrategy("ORB15");
+
+    await fetchLog();
+  } catch (e2) {
+    const msg =
+      e2?.response?.data?.error ||
+      e2?.response?.data?.message ||
+      "Failed to create trade.";
+    setFormError(msg);
+    console.error("Create trade error:", e2?.response?.data || e2);
+  } finally {
+    setSubmitting(false);
+  }
+}
 
   async function handleDeleteTrade(idToDelete) {
     const ok = window.confirm("Delete this trade?");
