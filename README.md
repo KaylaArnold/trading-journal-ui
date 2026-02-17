@@ -1,126 +1,110 @@
-# Trading Journal UI
+🖥️ FRONTEND REPO README
 
-A React + Vite frontend for the Trading Journal application.
+(trading-journal-ui/README.md)
 
-This application allows users to log trades, edit daily notes, and analyze performance through dashboards and analytics tables.
+📈 Trading Journal — Frontend
 
----
+Frontend client for a secure full-stack trading journal application.
 
-## 🚀 Features
+Built with React + Vite, this client communicates with a JWT-protected REST API and enforces clean UX validation before sending data to the backend.
 
-### Authentication
-- Login screen
-- JWT stored in localStorage
-- Authorization header: `Bearer <token>`
+🌐 Live Application
 
-### Daily Logs Dashboard
-- Paginated list of daily logs
-- Click into individual log details
+Frontend: https://trading-journal-ui-e3ac.onrender.com
+Backend API: https://trading-journal-api-qya8.onrender.com
 
-### Daily Log Detail Page
-- View log (date + ticker)
-- Edit notes:
-  - Key Levels
-  - Feelings
-  - Reflections
-- Add trades
-- Delete trades
-- Trade table with:
-  - CALL / PUT badge
-  - GREEN / RED badge
-  - Strategy badge (ORB15 / ORB5 / 3CONF)
-  - Color-coded Profit/Loss
-  - Contracts column
-  - Drip % column
-  - Amount Leveraged column
+Backend repository:
+👉 https://github.com/KaylaArnold/trading-journal-api
 
-### Trade Edit Modal
-- Opens from trade row
-- Prefilled form fields
-- PATCH update to backend
-- UI refresh after save
+🏗 Frontend Architecture
 
-### Analytics Page
-- Summary performance cards
-- Weekly breakdown table
-- Strategy performance table
-- Date filters (From / To)
-- Refresh button
+React (Vite)
 
-### Navigation / UX
-- React Router
-- Breadcrumb navigation
-- Clickable app title routes back to dashboard
-- Loading + error notices
+Axios API client
 
----
+JWT interceptor
 
-## 🛠 Tech Stack
+Protected routes
 
-- React
-- Vite
-- React Router
-- Fetch API
-- Custom CSS styling
+Modal-based editing
 
----
+Optimistic UI refresh
 
-## 📂 Project Structure
+Environment-based API configuration
 
-```txt
-public/
-src/
-  api/
-  assets/
-  components/
-  pages/
-```
+🔐 Security Considerations
+JWT Handling
 
----
+Token stored in localStorage
 
-## 📸 Screenshots
+Axios interceptor automatically attaches:
 
-### Dashboard
-![Dashboard](./screenshots/Dashboard.png)
+Authorization: Bearer <JWT_TOKEN>
 
-### Daily Log
-![Daily Log](./screenshots/DailyLogDetail.png)
 
-### Analytics
-![Analytics](./screenshots/Analytics.png)
+Unauthorized responses handled gracefully
 
-### Edit Trade Modal
-![Edit Trade](./screenshots/TradeEditModal.png)
+Client-Side Validation
 
----
+Before sending data to the backend:
 
-## ⚙️ Run Locally
+Time inputs normalized to HH:MM
 
-```bash
+Numeric fields coerced safely
+
+Empty PATCH bodies prevented
+
+Enums normalized (CALL/PUT, GREEN/RED)
+
+Example:
+
+normalizeTimeHM("9:30 AM") → "09:30"
+
+
+This prevents avoidable backend validation failures.
+
+🧠 State & API Flow
+
+Example: Creating a trade
+
+User enters trade data
+
+Input normalized client-side
+
+POST request sent to:
+
+POST /daily-logs/:id/trades
+
+
+On success:
+
+Local UI refresh triggered
+
+Analytics cache invalidated
+
+Trade table re-renders
+
+⚙️ Environment Variables
+
+Create .env:
+
+VITE_API_URL=http://localhost:3000
+
+
+Production environment must set:
+
+VITE_API_URL=https://trading-journal-api-qya8.onrender.com
+
+🛠 Run Locally
 npm install
 npm run dev
-```
 
-The app runs at:
+🔮 Future Improvements
 
-```
-http://localhost:5173
-```
+Refresh token flow
 
-Backend must be running separately.
+UI loading skeletons
 
----
+Component-level unit tests
 
-## Architecture
-
-React (Frontend)
-        ↓
-Express API (Backend)
-        ↓
-PostgreSQL Database
-
-
-## 🔗 Related Repository
-
-Backend API:
-https://github.com/KaylaArnold/trading-journal-api
+Accessibility improvements
