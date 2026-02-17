@@ -18,6 +18,54 @@ function toUpperOrNull(v) {
   return s ? s.toUpperCase() : null;
 }
 
+/**
+ * Normalizes time inputs into H:MM or HH:MM (24-hour).
+ * Accepts:
+ * - "9:30", "09:30", "10:02"
+ * - "9:30 AM", "10:02pm"
+ * - "930", "0930"
+ * Returns: "09:30" etc, or undefined if invalid/empty.
+ */
+function normalizeTimeHM(v) {
+  const raw = String(v ?? "").trim();
+  if (!raw) return undefined;
+
+  // Already valid: H:MM or HH:MM
+  let m = raw.match(/^(\d{1,2}):(\d{2})$/);
+  if (m) {
+    const h = Number(m[1]);
+    const mm = Number(m[2]);
+    if (h >= 0 && h <= 23 && mm >= 0 && mm <= 59) {
+      return `${String(h).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
+    }
+    return undefined;
+  }
+
+  // H:MM AM/PM
+  m = raw.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (m) {
+    let h = Number(m[1]);
+    const mm = Number(m[2]);
+    const ap = String(m[3]).toUpperCase();
+    if (h < 1 || h > 12 || mm < 0 || mm > 59) return undefined;
+    if (ap === "PM" && h !== 12) h += 12;
+    if (ap === "AM" && h === 12) h = 0;
+    return `${String(h).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
+  }
+
+  // "930" or "0930"
+  m = raw.match(/^(\d{3,4})$/);
+  if (m) {
+    const s = m[1].padStart(4, "0");
+    const h = Number(s.slice(0, 2));
+    const mm = Number(s.slice(2));
+    if (h >= 0 && h <= 23 && mm >= 0 && mm <= 59) return `${s.slice(0, 2)}:${s.slice(2)}`;
+    return undefined;
+  }
+
+  return undefined;
+}
+
 export default function TradeEditModal({ open, trade, onClose, onSave }) {
   const initial = useMemo(() => {
     if (!trade) return null;
@@ -66,12 +114,22 @@ export default function TradeEditModal({ open, trade, onClose, onSave }) {
   async function submit(e) {
     e.preventDefault();
     setError("");
+
+    // Normalize/validate time BEFORE sending
+    const normTimeIn = normalizeTimeHM(form?.timeIn);
+    const normTimeOut = normalizeTimeHM(form?.timeOut);
+
+    if (!normTimeIn || !normTimeOut) {
+      setError("Time must be H:MM or HH:MM (e.g. 9:30 or 10:02).");
+      return;
+    }
+
     setSaving(true);
 
     try {
       const body = {
-        timeIn: strOrUndef(form.timeIn),
-        timeOut: strOrUndef(form.timeOut),
+        timeIn: normTimeIn,
+        timeOut: normTimeOut,
         profitLoss: numOrUndef(form.profitLoss),
         runner: !!form.runner,
         optionType: toUpperOrNull(form.optionType) ?? undefined,
@@ -167,14 +225,14 @@ export default function TradeEditModal({ open, trade, onClose, onSave }) {
               <input
                 className="input"
                 style={fieldStyle}
-                placeholder="Time In (H:MM)"
+                placeholder="Time In (H:MM or HH:MM)"
                 value={form?.timeIn ?? ""}
                 onChange={set("timeIn")}
               />
               <input
                 className="input"
                 style={fieldStyle}
-                placeholder="Time Out (H:MM)"
+                placeholder="Time Out (H:MM or HH:MM)"
                 value={form?.timeOut ?? ""}
                 onChange={set("timeOut")}
               />
