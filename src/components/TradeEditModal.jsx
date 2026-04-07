@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import api from "../api/client";
 
 function numOrUndef(v) {
   const s = String(v ?? "").trim();
@@ -30,7 +31,6 @@ function normalizeTimeHM(v) {
   const raw = String(v ?? "").trim();
   if (!raw) return undefined;
 
-  // Already valid: H:MM or HH:MM
   let m = raw.match(/^(\d{1,2}):(\d{2})$/);
   if (m) {
     const h = Number(m[1]);
@@ -41,7 +41,6 @@ function normalizeTimeHM(v) {
     return undefined;
   }
 
-  // H:MM AM/PM
   m = raw.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
   if (m) {
     let h = Number(m[1]);
@@ -53,13 +52,14 @@ function normalizeTimeHM(v) {
     return `${String(h).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
   }
 
-  // "930" or "0930"
   m = raw.match(/^(\d{3,4})$/);
   if (m) {
     const s = m[1].padStart(4, "0");
     const h = Number(s.slice(0, 2));
     const mm = Number(s.slice(2));
-    if (h >= 0 && h <= 23 && mm >= 0 && mm <= 59) return `${s.slice(0, 2)}:${s.slice(2)}`;
+    if (h >= 0 && h <= 23 && mm >= 0 && mm <= 59) {
+      return `${s.slice(0, 2)}:${s.slice(2)}`;
+    }
     return undefined;
   }
 
@@ -86,11 +86,17 @@ export default function TradeEditModal({ open, trade, onClose, onSave }) {
   const [form, setForm] = useState(initial);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
+  const [aiAnalysis, setAiAnalysis] = useState(null);
 
   useEffect(() => {
     setForm(initial);
     setSaving(false);
     setError("");
+    setAiLoading(false);
+    setAiError("");
+    setAiAnalysis(null);
   }, [initial, open]);
 
   useEffect(() => {
@@ -115,7 +121,6 @@ export default function TradeEditModal({ open, trade, onClose, onSave }) {
     e.preventDefault();
     setError("");
 
-    // Normalize/validate time BEFORE sending
     const normTimeIn = normalizeTimeHM(form?.timeIn);
     const normTimeOut = normalizeTimeHM(form?.timeOut);
 
@@ -140,7 +145,6 @@ export default function TradeEditModal({ open, trade, onClose, onSave }) {
         amountLeveraged: numOrUndef(form.amountLeveraged),
       };
 
-      // keep Zod happy (no empty PATCH)
       Object.keys(body).forEach((k) => body[k] === undefined && delete body[k]);
 
       await onSave(body);
@@ -152,7 +156,30 @@ export default function TradeEditModal({ open, trade, onClose, onSave }) {
     }
   }
 
-  // Inline styles so the modal is NEVER “washed out”, regardless of global CSS.
+  async function handleAnalyzeTrade() {
+    if (!trade?.id) return;
+
+    try {
+      setAiLoading(true);
+      setAiError("");
+      setAiAnalysis(null);
+
+      const res = await api.post(`/ai/analyze-trade/${trade.id}`);
+      setAiAnalysis(res?.data?.analysis || null);
+    } catch (err) {
+      console.error("Analyze trade error:", err?.response?.data || err);
+
+      const msg =
+        err?.response?.data?.error ||
+        err?.response?.data?.details ||
+        "Failed to analyze trade";
+
+      setAiError(msg);
+    } finally {
+      setAiLoading(false);
+    }
+  }
+
   const overlayStyle = {
     position: "fixed",
     inset: 0,
@@ -173,6 +200,8 @@ export default function TradeEditModal({ open, trade, onClose, onSave }) {
     padding: 16,
     boxShadow: "0 30px 80px rgba(0,0,0,0.85)",
     opacity: 1,
+    maxHeight: "90vh",
+    overflowY: "auto",
   };
 
   const fieldStyle = {
@@ -187,11 +216,19 @@ export default function TradeEditModal({ open, trade, onClose, onSave }) {
     fontSize: 18,
   };
 
+  const analysisCardStyle = {
+    marginTop: 14,
+    padding: 14,
+    borderRadius: 12,
+    border: "1px solid rgba(255,255,255,0.12)",
+    background: "rgba(255,255,255,0.04)",
+    color: "#fff",
+  };
+
   return (
     <div style={overlayStyle} onClick={onClose}>
       <div style={{ width: "min(760px, 100%)" }} onClick={(e) => e.stopPropagation()}>
         <div style={modalStyle}>
-          {/* Header */}
           <div
             style={{
               display: "flex",
@@ -211,7 +248,7 @@ export default function TradeEditModal({ open, trade, onClose, onSave }) {
               className="btn"
               type="button"
               onClick={onClose}
-              disabled={saving}
+              disabled={saving || aiLoading}
               style={closeXStyle}
               aria-label="Close"
               title="Close"
@@ -330,15 +367,79 @@ export default function TradeEditModal({ open, trade, onClose, onSave }) {
               </p>
             ) : null}
 
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
-              <button className="btn" type="button" onClick={onClose} disabled={saving}>
-                Cancel
+            <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
+              <button
+                className="btn"
+                type="button"
+                onClick={handleAnalyzeTrade}
+                disabled={aiLoading || !trade?.id}
+              >
+                {aiLoading ? "Analyzing..." : "Analyze Trade"}
               </button>
-              <button className="btn btnPrimary" type="submit" disabled={saving || !trade}>
-                {saving ? "Saving..." : "Save"}
-              </button>
+
+              <div style={{ display: "flex", gap: 10 }}>
+                <button className="btn" type="button" onClick={onClose} disabled={saving || aiLoading}>
+                  Cancel
+                </button>
+                <button className="btn btnPrimary" type="submit" disabled={saving || !trade || aiLoading}>
+                  {saving ? "Saving..." : "Save"}
+                </button>
+              </div>
             </div>
           </form>
+
+          {aiError ? (
+            <p className="error" style={{ marginTop: 12 }}>
+              {aiError}
+            </p>
+          ) : null}
+
+          {aiAnalysis ? (
+            <div style={analysisCardStyle}>
+              <h4 style={{ marginTop: 0, marginBottom: 10 }}>AI Trade Review</h4>
+
+              <p style={{ marginTop: 0 }}>
+                <strong>Discipline Score:</strong> {aiAnalysis.disciplineScore ?? "—"}/100
+              </p>
+
+              <div style={{ marginTop: 12 }}>
+                <strong>Strengths</strong>
+                <ul>
+                  {(aiAnalysis.strengths || []).map((item, idx) => (
+                    <li key={`strength-${idx}`}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+
+              <div style={{ marginTop: 12 }}>
+                <strong>Mistakes</strong>
+                <ul>
+                  {(aiAnalysis.mistakes || []).map((item, idx) => (
+                    <li key={`mistake-${idx}`}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+
+              <div style={{ marginTop: 12 }}>
+                <strong>Risk Notes</strong>
+                <ul>
+                  {(aiAnalysis.riskNotes || []).map((item, idx) => (
+                    <li key={`risk-${idx}`}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+
+              <div style={{ marginTop: 12 }}>
+                <strong>Coaching Summary</strong>
+                <p>{aiAnalysis.coachingSummary || "—"}</p>
+              </div>
+
+              <div style={{ marginTop: 12 }}>
+                <strong>Suggested Improvement</strong>
+                <p>{aiAnalysis.suggestedImprovement || "—"}</p>
+              </div>
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

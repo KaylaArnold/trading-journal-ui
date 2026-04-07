@@ -1,14 +1,19 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL:
-    import.meta.env.VITE_API_URL ||
-    "https://trading-journal-api-qya8.onrender.com",
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000",
 });
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+  const token =
+    localStorage.getItem("token") ||
+    localStorage.getItem("authToken") ||
+    localStorage.getItem("jwt");
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
   return config;
 });
 
